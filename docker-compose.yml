@@ -1,0 +1,31 @@
+version: '3.3'
+services:
+  rproxy:
+    image: nginx:latest
+    container_name: nginx_rproxy
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./www:/data/www
+      - ./certs/localhost.crt:/etc/letsencrypt/localhost.crt
+      - ./certs/localhost.key:/etc/letsencrypt/localhost.key
+    networks:
+      internal:
+    ports:
+      - 80:80
+      - 443:443
+  mykeycloak:
+    image: jboss/keycloak:latest
+    container_name: mykeycloak
+    restart: unless-stopped
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
+      - PROXY_ADDRESS_FORWARDING=true
+    networks:
+      internal:
+        # aliases:
+        #   - auth.keycloak
+
+networks:
+  internal:
